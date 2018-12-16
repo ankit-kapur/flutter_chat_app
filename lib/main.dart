@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 const String _person_name = "Ankit";
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -22,18 +23,18 @@ class ChatScreen extends StatefulWidget {
 
 class ChatMessage extends StatelessWidget {
   ChatMessage({this.text});
+
   final String text;
+
   @override
   Widget build(BuildContext context) {
     return new Container(
       margin: const EdgeInsets.symmetric(vertical: 10.0),
       child: new Row(
-
         /// For the avatar, the parent is a Row widget whose main axis is horizontal.
         /// So, CrossAxisAlignment.start gives it the highest position along the vertical axis
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-
           /// Avatar
           new Container(
             margin: const EdgeInsets.only(right: 16.0),
@@ -46,7 +47,8 @@ class ChatMessage extends StatelessWidget {
 
             /// 2 text-boxes: Sender name & actual message
             children: <Widget>[
-              new Text(_person_name, style: Theme.of(context).textTheme.subhead),
+              new Text(_person_name,
+                  style: Theme.of(context).textTheme.subhead),
               new Container(
                 margin: const EdgeInsets.only(top: 5.0),
                 child: new Text(text),
@@ -62,7 +64,6 @@ class ChatMessage extends StatelessWidget {
 /// If you want to visually present stateful data in a widget,
 /// you should encapsulate this data in a State object.
 class ChatScreenState extends State<ChatScreen> {
-
   /// To manage interactions with the TextField.
   /// For reading the contents and clearing the field after the message is sent.
   final TextEditingController _textController = new TextEditingController();
@@ -88,59 +89,57 @@ class ChatScreenState extends State<ChatScreen> {
 
   Widget _buildTextComposer() {
     return new IconTheme(
-        /// This gives all widgets the accent color of the current theme.
-        data: new IconThemeData(color: Theme.of(context).accentColor),
-        child: new Container(
-          margin: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: new Row(
-            children: <Widget>[
-
-              /// wrap the TextField widget in a Flexible widget.
-              /// This tells the Row to automatically size the text field
-              /// to use the remaining space that isn't used by the button.
-              new Flexible(
-                child: new TextField(
-                  controller: _textController,
-                  onSubmitted: _handleSubmitted,
-                  decoration: new InputDecoration.collapsed(
-                      hintText: "Send a message"),
-                ),
+      /// This gives all widgets the accent color of the current theme.
+      data: new IconThemeData(color: Theme.of(context).accentColor),
+      child: new Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: new Row(
+          children: <Widget>[
+            /// wrap the TextField widget in a Flexible widget.
+            /// This tells the Row to automatically size the text field
+            /// to use the remaining space that isn't used by the button.
+            new Flexible(
+              child: new TextField(
+                controller: _textController,
+                onSubmitted: _handleSubmitted,
+                decoration:
+                    new InputDecoration.collapsed(hintText: "Send a message"),
               ),
+            ),
 
-              new IconButton(
-                  icon: new Icon(Icons.send),
-                  onPressed: () => _handleSubmitted(_textController.text)
-              )
-            ],
-          ),
+            new IconButton(
+                icon: new Icon(Icons.send),
+                onPressed: () => _handleSubmitted(_textController.text))
+          ],
         ),
+      ),
     );
-
   }
-
-
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(title: new Text("Friendly chat")),
-      body: new Column(                                        //modified
-        children: <Widget>[                                         //new
-          new Flexible(                                             //new
-            child: new ListView.builder(                            //new
-              padding: new EdgeInsets.all(8.0),                     //new
-              reverse: true,                                        //new
-              itemBuilder: (_, int index) => _messages[index],      //new
-              itemCount: _messages.length,                          //new
-            ),                                                      //new
-          ),                                                        //new
-          new Divider(height: 1.0),                                 //new
-          new Container(                                            //new
-            decoration: new BoxDecoration(
-                color: Theme.of(context).cardColor),                  //new
-            child: _buildTextComposer(),                       //modified
-          ),                                                        //new
-        ],                                                          //new
+      body: new Column(
+        children: <Widget>[
+          new Flexible(
+            child: new ListView.builder(
+              padding: new EdgeInsets.all(8.0),
+
+              /// to make the ListView start from the bottom of the screen
+              reverse: true,
+
+              /// Naming the argument _ (underscore) is a convention to indicate that it won't be used.
+              itemBuilder: (_, int index) => _messages[index],
+              itemCount: _messages.length,
+            ),
+          ),
+          new Divider(height: 1.0),
+          new Container(
+            decoration: new BoxDecoration(color: Theme.of(context).cardColor),
+            child: _buildTextComposer(),
+          ),
+        ],
       ),
     );
   }

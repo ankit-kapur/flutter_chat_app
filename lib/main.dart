@@ -1,6 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 
 const String _person_name = "Ankit";
+
+final ThemeData kIOSTheme = new ThemeData(
+  primarySwatch: Colors.orange,
+  primaryColor: Colors.grey[100],
+  primaryColorBrightness: Brightness.light,
+);
+
+final ThemeData kDefaultTheme = new ThemeData(
+  primarySwatch: Colors.purple,
+  accentColor: Colors.orangeAccent[400],
+);
 
 void main() => runApp(MyApp());
 
@@ -11,7 +24,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Friendlychat",
       home: new ChatScreen(),
-      theme: ThemeData.light(),
+      theme: defaultTargetPlatform == TargetPlatform.iOS
+          ? kIOSTheme
+          : kDefaultTheme,
     );
   }
 }
@@ -44,20 +59,26 @@ class ChatMessage extends StatelessWidget {
                 margin: const EdgeInsets.only(right: 16.0),
                 child: new CircleAvatar(child: new Text(_person_name[0])),
               ),
-              new Column(
-                /// Since for a column the main axis is vertical,
-                /// the CrossAxisAlignment.start aligns the text at the furthest left position along the horizontal axis.
-                crossAxisAlignment: CrossAxisAlignment.start,
 
-                /// 2 text-boxes: Sender name & actual message
-                children: <Widget>[
-                  new Text(_person_name,
-                      style: Theme.of(context).textTheme.subhead),
-                  new Container(
-                    margin: const EdgeInsets.only(top: 5.0),
-                    child: new Text(text),
-                  ),
-                ],
+              ///  Expanded allows a widget like Column to impose layout constraints
+              ///  (in this case the Column's width), on a child widget.
+              ///  Here it constrains the width of the Text widget, which is normally determined by its contents.
+              new Expanded(
+                child: new Column(
+                  /// Since for a column the main axis is vertical,
+                  /// the CrossAxisAlignment.start aligns the text at the furthest left position along the horizontal axis.
+                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                  /// 2 text-boxes: Sender name & actual message
+                  children: <Widget>[
+                    new Text(_person_name,
+                        style: Theme.of(context).textTheme.subhead),
+                    new Container(
+                      margin: const EdgeInsets.only(top: 5.0),
+                      child: new Text(text),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -100,6 +121,7 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     chatMessage.animationController.forward();
   }
 
+  /// Composer
   Widget _buildTextComposer() {
     return new IconTheme(
       /// This gives all widgets the accent color of the current theme.
@@ -125,11 +147,23 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               ),
             ),
 
-            new IconButton(
-              icon: new Icon(Icons.send),
-              onPressed: _isComposing
-                  ? () => _handleSubmitted(_textController.text)
-                  : null, /// onPressed being null makes the button grayed out
+            new Container(
+              margin: EdgeInsets.symmetric(horizontal: 4.0),
+              child: Theme.of(context).platform == TargetPlatform.iOS
+                  ? new CupertinoButton(
+                      child: new Text("Send"),
+                      onPressed: _isComposing
+                          ? () => _handleSubmitted(_textController.text)
+                          : null,
+                    )
+                  : new IconButton(
+                      icon: new Icon(Icons.send),
+                      onPressed: _isComposing
+                          ? () => _handleSubmitted(_textController.text)
+                          : null,
+
+                      /// onPressed being null makes the button grayed out
+                    ),
             ),
           ],
         ),
@@ -137,31 +171,42 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     );
   }
 
+  /// The whole chat-screen
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(title: new Text("Friendly chat")),
-      body: new Column(
-        children: <Widget>[
-          new Flexible(
-            child: new ListView.builder(
-              padding: new EdgeInsets.all(8.0),
-
-              /// to make the ListView start from the bottom of the screen
-              reverse: true,
-
-              /// Naming the argument _ (underscore) is a convention to indicate that it won't be used.
-              itemBuilder: (_, int index) => _messages[index],
-              itemCount: _messages.length,
-            ),
-          ),
-          new Divider(height: 1.0),
-          new Container(
-            decoration: new BoxDecoration(color: Theme.of(context).cardColor),
-            child: _buildTextComposer(),
-          ),
-        ],
+      appBar: new AppBar(
+        title: new Text("Friendly chat"),
+        elevation: Theme.of(context).platform == TargetPlatform.iOS ? 2.0 : 6.0,
       ),
+      body: Container(
+          child: new Column(
+            children: <Widget>[
+              new Flexible(
+                child: new ListView.builder(
+                  padding: new EdgeInsets.all(8.0),
+
+                  /// to make the ListView start from the bottom of the screen
+                  reverse: true,
+
+                  /// Naming the argument _ (underscore) is a convention to indicate that it won't be used.
+                  itemBuilder: (_, int index) => _messages[index],
+                  itemCount: _messages.length,
+                ),
+              ),
+              new Divider(height: 1.0),
+              new Container(
+                decoration:
+                    new BoxDecoration(color: Theme.of(context).cardColor),
+                child: _buildTextComposer(),
+              ),
+            ],
+          ),
+          decoration: new BoxDecoration(
+            border: new Border(
+              top: new BorderSide(color: Colors.brown[800]),
+            ),
+          )),
     );
   }
 

@@ -68,14 +68,16 @@ class ChatMessage extends StatelessWidget {
 /// If you want to visually present stateful data in a widget,
 /// you should encapsulate this data in a State object.
 class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
+  /// ========================= Stateful data here =============================
+  final List<ChatMessage> _messages = <ChatMessage>[];
+  bool _isComposing = false;
+
   /// To manage interactions with the TextField.
   /// For reading the contents and clearing the field after the message is sent.
   final TextEditingController _textController = new TextEditingController();
 
-  /// Chat messages
-  final List<ChatMessage> _messages = <ChatMessage>[];
-
   void _handleSubmitted(String text) {
+    _isComposing = false;
     _textController.clear();
     ChatMessage chatMessage = new ChatMessage(
       text: text,
@@ -113,14 +115,22 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               child: new TextField(
                 controller: _textController,
                 onSubmitted: _handleSubmitted,
+                onChanged: (String text) {
+                  setState(() {
+                    _isComposing = (text.length > 0);
+                  });
+                },
                 decoration:
                     new InputDecoration.collapsed(hintText: "Send a message"),
               ),
             ),
 
             new IconButton(
-                icon: new Icon(Icons.send),
-                onPressed: () => _handleSubmitted(_textController.text))
+              icon: new Icon(Icons.send),
+              onPressed: _isComposing
+                  ? () => _handleSubmitted(_textController.text)
+                  : null, /// onPressed being null makes the button grayed out
+            ),
           ],
         ),
       ),

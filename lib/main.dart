@@ -204,7 +204,8 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           ),
           decoration: new BoxDecoration(
             border: new Border(
-              top: new BorderSide(color: Colors.brown[800]),
+              top: new BorderSide(color: Colors.grey[400], width: 5.0),
+              bottom: new BorderSide(color: Colors.grey[700], width: 4.0),
             ),
           )),
     );

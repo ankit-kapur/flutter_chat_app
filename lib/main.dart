@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Friendlychat",
       home: new ChatScreen(),
-      theme: ThemeData.dark(),
+      theme: ThemeData.light(),
     );
   }
 }
@@ -22,48 +22,52 @@ class ChatScreen extends StatefulWidget {
 }
 
 class ChatMessage extends StatelessWidget {
-  ChatMessage({this.text});
+  ChatMessage({this.text, this.animationController});
 
   final String text;
+  final AnimationController animationController;
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
-      margin: const EdgeInsets.symmetric(vertical: 10.0),
-      child: new Row(
-        /// For the avatar, the parent is a Row widget whose main axis is horizontal.
-        /// So, CrossAxisAlignment.start gives it the highest position along the vertical axis
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          /// Avatar
-          new Container(
-            margin: const EdgeInsets.only(right: 16.0),
-            child: new CircleAvatar(child: new Text(_person_name[0])),
-          ),
-          new Column(
-            /// Since for a column the main axis is vertical,
-            /// the CrossAxisAlignment.start aligns the text at the furthest left position along the horizontal axis.
+    return new FadeTransition(
+        opacity: new CurvedAnimation(
+            parent: animationController, curve: Curves.decelerate),
+        child: new Container(
+          margin: const EdgeInsets.symmetric(vertical: 10.0),
+          child: new Row(
+            /// For the avatar, the parent is a Row widget whose main axis is horizontal.
+            /// So, CrossAxisAlignment.start gives it the highest position along the vertical axis
             crossAxisAlignment: CrossAxisAlignment.start,
-
-            /// 2 text-boxes: Sender name & actual message
             children: <Widget>[
-              new Text(_person_name,
-                  style: Theme.of(context).textTheme.subhead),
+              /// Avatar
               new Container(
-                margin: const EdgeInsets.only(top: 5.0),
-                child: new Text(text),
+                margin: const EdgeInsets.only(right: 16.0),
+                child: new CircleAvatar(child: new Text(_person_name[0])),
+              ),
+              new Column(
+                /// Since for a column the main axis is vertical,
+                /// the CrossAxisAlignment.start aligns the text at the furthest left position along the horizontal axis.
+                crossAxisAlignment: CrossAxisAlignment.start,
+
+                /// 2 text-boxes: Sender name & actual message
+                children: <Widget>[
+                  new Text(_person_name,
+                      style: Theme.of(context).textTheme.subhead),
+                  new Container(
+                    margin: const EdgeInsets.only(top: 5.0),
+                    child: new Text(text),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
-    );
+        ));
   }
 }
 
 /// If you want to visually present stateful data in a widget,
 /// you should encapsulate this data in a State object.
-class ChatScreenState extends State<ChatScreen> {
+class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   /// To manage interactions with the TextField.
   /// For reading the contents and clearing the field after the message is sent.
   final TextEditingController _textController = new TextEditingController();
@@ -75,6 +79,10 @@ class ChatScreenState extends State<ChatScreen> {
     _textController.clear();
     ChatMessage chatMessage = new ChatMessage(
       text: text,
+      animationController: new AnimationController(
+        duration: new Duration(milliseconds: 600), //new
+        vsync: this,
+      ),
     );
 
     /// You call setState()to modify _messages and to let the framework know
@@ -85,6 +93,9 @@ class ChatScreenState extends State<ChatScreen> {
       /// Only synchronous operations should be performed in setState(),
       /// because otherwise the framework could rebuild the widgets before the operation finishes.
     });
+
+    /// Run the animation
+    chatMessage.animationController.forward();
   }
 
   Widget _buildTextComposer() {
@@ -142,5 +153,12 @@ class ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    for (ChatMessage message in _messages)
+      message.animationController.dispose();
+    super.dispose();
   }
 }
